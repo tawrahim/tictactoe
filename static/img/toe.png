@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:8080/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe | It works! Hello from localhost </title>
+    <link href="./toe.png_files/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+    <link href="./toe.png_files/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="./toe.png_files/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="http://localhost:8080/#">TicTac-Toe</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="http://localhost:8080/#">Home</a></li>
+              <li><a href="http://localhost:8080/#about">About</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+        <!-- carousel div -->
+        <div class="row">
+            <div class="span12">
+               <img src="./toe.png_files/toe.png" alt="Banner!">
+            </div>
+        </div>
+        
+        <!-- signup button and picture -->
+        <div class="row">
+            <div class="span6"><!-- picture -->
+                
+            </div>
+            <div class="span6"><!-- signup button -->
+                 
+             </div>
+        </div>
+
+        <!-- footer -->
+        <footer>
+        <p class="pull-right"><a href="http://localhost:8080/#">Back to top</a></p>
+        </footer>
+    </div> <!-- /container -->
+    
+    <script src="./toe.png_files/jquery.js"></script>
+    <script src="./toe.png_files/bootstrap.min.js"></script>
+
+<div id="window-resizer-tooltip"><a href="http://localhost:8080/#" title="Edit settings" style="background-image: url(chrome-extension://kkelicaakdanhinjdeammmilcgefonfh/images/icon_19.png);"></a><span class="tooltipTitle">Window size: </span><span class="tooltipWidth" id="winWidth"></span> x <span class="tooltipHeight" id="winHeight"></span><br><span class="tooltipTitle">Viewport size: </span><span class="tooltipWidth" id="vpWidth"></span> x <span class="tooltipHeight" id="vpHeight"></span></div></body></html>

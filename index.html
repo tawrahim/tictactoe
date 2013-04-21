@@ -9,45 +9,40 @@
     <link href="/css/main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="brand" href="#">TicTac-Toe</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
-    <div class="container">
-        <!-- carousel div -->
-        <div>
-            
+    <div class="container-fluid" id="content">
+        
+        <div class="navbar navbar-inverse navbar-fixed-top">
+          <div class="navbar-inner">
+            <div class="container">
+              <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="brand" href="#">Multi Palyer TicTac-Toe</a>
+            </div>
+          </div>
         </div>
         
         <!-- signup button and picture -->
-        <div>
-            <div><!-- picture -->
-                
+        <div class="row-fluid">
+            <div class="span12 hero-unit">
+                <div class="span6"><!-- picture -->
+                   <img src="/img/tac.png" alt="Banner!" />
+                </div>
+                <div id="button" class="span6"><!-- signup button -->
+                   <img src="/img/signin.jpg" alt="Banner!" />
+                 </div>
             </div>
-            <div><!-- signup button -->
-                 
-             </div>
+            <div id="push"></div>
         </div>
-    </div> <!-- /container -->
-    
+    </div> 
     <!-- footer -->
-    <div>
-        
+    <div id="footer">
+        <div class="container">
+            <p></p>
+            <p>Tawheed | Reena | Chris | Mercedes</p>
+        </div>
     </div>
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="/js/bootstrap.min.js"></script>

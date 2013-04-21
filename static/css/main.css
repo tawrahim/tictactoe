@@ -1,3 +1,42 @@
 body {
-    padding-top: 65px;
+    padding-top: 60px;
+    height: 100%;
 }
+
+.hero-unit {
+    background-color: white;
+}
+
+#button {
+    margin-top: 230px;
+    margin-left: 22px;
+}
+
+#wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -60px;
+}
+
+#push,
+#footer {
+    height: 60px;
+}
+#footer {
+    background-color: #000000;
+}
+
+#content {
+    padding-bottom: 150px;
+}
+
+@media (max-width: 767px) {
+    #footer {
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
