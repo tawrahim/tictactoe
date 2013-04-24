@@ -207,17 +207,23 @@ class GameBoard(object):
         return self.winner() in ('X', 'O') or self.getNumEmptyTiles < 1
 
     def __str__(self):
+        boadrStr = ''
         for y in range(self.height, 0, -1):
 ##            print 'range height:', range(self.height, 0, -1)
 ##            print y
-            print str(y) + '  ',
+            #print str(y) + '  ',
+            boadrStr += str(y) + '   '
             for x in range(1, self.width+1):
 ##                print 'range width:', range(1, self.width+1)
 ##                print x
-                print str(self.getPlayerTilePositions(Position(x,y))),
-            print
-        print "Y"
-        print "/ X 1 2 3"
+                #print str(self.getPlayerTilePositions(Position(x,y))),
+                boadrStr += str(self.getPlayerTilePositions(Position(x,y))) + ' '
+            #print
+            boadrStr += '\n'
+        #print "Y"
+        #print "/ X 1 2 3"
+        boadrStr += 'Y\n/ X 1 2 3'
+        print  boadrStr
         return ''
 
 if __name__ == "__main__":
@@ -237,7 +243,6 @@ if __name__ == "__main__":
                 break
         else:
             continue
-        print board.getNumEmptyTiles()
         if board.getNumEmptyTiles() < 1:
             break
         if board.markTileAtPosition(board.getRandomComputerPosition()): #Computer player
