@@ -281,9 +281,9 @@ class GameBoard(object):
                 allEqual([self.playerTilePositions[mapX[i]][mapY[i]] for i in row]):
                 return self.playerTilePositions[mapX[row[0]]][mapY[row[0]]]
             """
-            val0 = self.getPlayerTilePositions(Position(mapX[row[0]][mapY[row[0]]]
+            val0 = self.getPlayerTilePositions(Position(mapX[row[0]],mapY[row[0]]))
             if val0 != '-' and \
-              allEqual(self.getPlayerTilePositions(Position(mapX[row[i]][mapY[row[i]] for i in row]):
+              allEqual([self.getPlayerTilePositions(Position(mapX[i],mapY[i])) for i in row]):
               return self.getPlayerTilePositions(val0)
 
     def isGameOver(self):
