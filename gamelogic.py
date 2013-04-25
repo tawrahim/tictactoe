@@ -2,6 +2,18 @@
 
 import random
 
+from google.appengine.ext import db
+
+class Matrix(db.Model):
+  col0 = db.StringProperty(required=True,
+                           choices=set(["X", "O", "-"]))
+  col1 = db.StringProperty(required=True,
+                           choices=set(["X", "O", "-"]))
+  col2 = db.StringProperty(required=True,
+                           choices=set(["X", "O", "-"]))
+  XUser = db.StringProperty(required=False)
+  OUser = db.StringProperty(required=False)
+
 # Retrieved from: http://en.literateprograms.org/Tic_Tac_Toe_(Python)?oldid=17009
 def allEqual(list):
     """returns True if all the elements in a list are equal, or if the list is empty."""
@@ -65,7 +77,27 @@ class GameBoard(object):
         self.numTiles = width * height
         self.numEmptyTiles = self.numTiles
         self.playerXTurn = True
+        """
         self.playerTilePositions = [['-','-','-'],['-','-','-'],['-','-','-']]
+        """
+        row0 = Matrix(key_name="row0",
+             col0="-",
+             col1="-",
+             col2="-")
+        row0.put();
+
+        row1 = Matrix(key_name="row1",
+                   col0="-",
+                   col1="-",
+                   col2="-")
+        row1.put();
+
+        row2 = Matrix(key_name="row2",
+                   col0="-",
+                   col1="-",
+                   col2="-")
+        row2.put();
+        
 ##        for y in range(height, 0, -1):
 ##            #print 'range height:', range(height, 0, -1)
 ##            #print y
@@ -110,10 +142,49 @@ class GameBoard(object):
         self.playerXTurn = False
 
     def getPlayerTilePositions(self, pos):
+        """
         return self.playerTilePositions[pos.getX()-1][pos.getY()-1]
+        get the value at pos from datastore
+        """
+        if (pos.getY() - 1) == 0:
+          row = "row0"
+        elif (pos.getY() - 1) == 1:
+          row = "row1"
+        else:
+          row = "row2"
+
+        row_k = db.Key.from_path('Matrix', row)
+        row_values = db.get(row_k)
+
+        if(pos.getX() - 1) == 0:
+          return row_values.col0
+        elif (pos.getX() -1) == 1:
+          return row_values.col1
+        else:
+          return row_values.col2
 
     def setPlayerTilePositions(self, pos, val):
+        """
         self.playerTilePositions[pos.getX()-1][pos.getY()-1] = val
+        """
+        if (pos.getY() - 1) == 0:
+          row = "row0"
+        elif (pos.getY() - 1) == 1:
+          row = "row1"
+        else:
+          row = "row2"
+
+        row_k = db.Key.from_path('Matrix', row)
+        row_values = db.get(row_k)
+
+        if(pos.getX() - 1) == 0:
+          row_values.col0 = val
+        elif (pos.getX() - 1) == 1:
+          row_values.col1 = val
+        else:
+          row_values.col2 = val
+
+        row_values.put()
 
     def isTileEmpty(self, pos):
         """
@@ -199,26 +270,37 @@ class GameBoard(object):
         mapX = [0,1,2,0,1,2,0,1,2]
         mapY = [0,0,0,1,1,1,2,2,2]
         for row in winning_rows:
+            """                                           
             if self.playerTilePositions[mapX[row[0]]][mapY[row[0]]] != '-' and \
                 allEqual([self.playerTilePositions[mapX[i]][mapY[i]] for i in row]):
                 return self.playerTilePositions[mapX[row[0]]][mapY[row[0]]]
+            """
+            val0 = self.getPlayerTilePositions(Position(mapX[row[0]][mapY[row[0]]]
+            if val0 != '-' and \
+              allEqual(self.getPlayerTilePositions(Position(mapX[row[i]][mapY[row[i]] for i in row]):
+              return self.getPlayerTilePositions(val0)
 
     def isGameOver(self):
         return self.winner() in ('X', 'O') or self.getNumEmptyTiles < 1
 
     def __str__(self):
+        boadrStr = ''
         for y in range(self.height, 0, -1):
 ##            print 'range height:', range(self.height, 0, -1)
 ##            print y
-            print str(y) + '  ',
+            #print str(y) + '  ',
+            boadrStr += str(y) + '   '
             for x in range(1, self.width+1):
 ##                print 'range width:', range(1, self.width+1)
 ##                print x
-                print str(self.getPlayerTilePositions(Position(x,y))),
-            print
-        print "Y"
-        print "/ X 1 2 3"
-        return ''
+                #print str(self.getPlayerTilePositions(Position(x,y))),
+                boadrStr += str(self.getPlayerTilePositions(Position(x,y))) + ' '
+            #print
+            boadrStr += '\n'
+        #print "Y"
+        #print "/ X 1 2 3"
+        boadrStr += 'Y\n/ X 1 2 3\n'
+        return boadrStr
 
 if __name__ == "__main__":
     board = GameBoard()
@@ -237,7 +319,6 @@ if __name__ == "__main__":
                 break
         else:
             continue
-        print board.getNumEmptyTiles()
         if board.getNumEmptyTiles() < 1:
             break
         if board.markTileAtPosition(board.getRandomComputerPosition()): #Computer player
