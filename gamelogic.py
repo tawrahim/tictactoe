@@ -327,15 +327,13 @@ def playGame(playerType):
                     pos = raw_input(inputText)
             except:
                 continue
-        #Implement the move and check if a player won.
+        #Implement the move.
         if board.markTileAtPosition(pos):
-            if board.isGameOver(): 
+            #Game is over if a player won or there are no more empty tiles.
+            if board.isGameOver() or board.getNumEmptyTiles() < 1: 
                 break
         else:
             continue
-        #If there are no more empty squares, the game is over.
-        if board.getNumEmptyTiles() < 1:
-            break
 
     if board.winner():
         print 'Player "%s" wins!' % board.winner()
