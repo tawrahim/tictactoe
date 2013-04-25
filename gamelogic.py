@@ -147,7 +147,7 @@ class GameBoard(object):
         get the value at pos from datastore
         """
         if (pos.getY() - 1) == 0:
-          row = "row0)"
+          row = "row0"
         elif (pos.getY() - 1) == 1:
           row = "row1"
         else:
