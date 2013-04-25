@@ -282,6 +282,7 @@ class GameBoard(object):
 ##    elif board.winner() == None:
 ##        print "It's a Draw."
 
+board = GameBoard()
 class XmppHandler(xmpp_handlers.CommandHandler):
     """Handler class for all XMPP activity."""
 
@@ -331,6 +332,13 @@ class XmppHandler(xmpp_handlers.CommandHandler):
 
     def text_message(self, message=None):
         message.reply(HELP_MSG1)
+
+    def human_command(self,message=None):
+        message.reply("Human player alive")
+        board.setPlayerType(HUMAN_PLAYER)
+
+    def computer_command(self, message=None):
+        board.setPlayerType(COMPUTER_PLAYER)
 	
     def help_command(self, message=None):
         message.reply(HELP_MSG2)
