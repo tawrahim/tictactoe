@@ -222,9 +222,8 @@ class GameBoard(object):
             boadrStr += '\n'
         #print "Y"
         #print "/ X 1 2 3"
-        boadrStr += 'Y\n/ X 1 2 3'
-        print  boadrStr
-        return ''
+        boadrStr += 'Y\n/ X 1 2 3\n'
+        return boadrStr
 
 if __name__ == "__main__":
     board = GameBoard()
