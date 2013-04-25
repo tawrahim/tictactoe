@@ -7,6 +7,9 @@ from google.appengine.api import users
 from google.appengine.api import xmpp
 from google.appengine.ext.webapp import xmpp_handlers
 
+QUIT = 0
+HUMAN_PLAYER = 1
+COMPUTER_PLAYER = 2
 
 HELP_MSG1 = ("Greetings!!!, Would you like to play tic toe?"
             "Start the game by typing '/play'!")
@@ -16,7 +19,7 @@ HELP_MSG2 = ("Enter the command '/move' and two numbers (x,y) for the Coordinate
 GAME_OVER = "Game Over"
 
 game_started = False
-boadrStr = ''
+boardStr = ''
 
 jinja_environment = jinja2.Environment(autoescape=True,
         loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
@@ -84,17 +87,9 @@ class GameBoard(object):
         self.numTiles = width * height
         self.numEmptyTiles = self.numTiles
         self.playerXTurn = True
+        self.playerType = HUMAN_PLAYER
         self.playerTilePositions = [['-','-','-'],['-','-','-'],['-','-','-']]
-##        for y in range(height, 0, -1):
-##            #print 'range height:', range(height, 0, -1)
-##            #print y
-##            for x in range(1, width+1):
-##                #print 'range width:', range(1, width+1)
-##                #print x
-###                self.setPlayerTilePositions(Position(x,y),'-')
-##                self.playerTilePositions[x][y] = '-'
-##        print self.playerTilePositions.values()
-                
+
     def getWidth(self):
         return self.width
     
@@ -119,14 +114,14 @@ class GameBoard(object):
     def isPlayerXTurn(self):
         return self.playerXTurn
 
-    def isPlayerOTurn(self):
-        return not self.playerXTurn
+    def setPlayerXTurn(self, toggle):
+        self.playerXTurn = toggle
 
-    def setPlayerXTurn(self):
-        self.playerXTurn = True
+    def getPlayerType(self):
+        return self.playerType
 
-    def setPlayerOTurn(self):
-        self.playerXTurn = False
+    def setPlayerType(self, playerType):
+        self.playerType = playerType
 
     def getPlayerTilePositions(self, pos):
         return self.playerTilePositions[pos.getX()-1][pos.getY()-1]
@@ -148,7 +143,7 @@ class GameBoard(object):
                 return True
         except:
             return False
-    
+
     def markTileAtPosition(self, pos):
         """
         Mark the tile under the position POS with value val ('X' or 'Y')
@@ -156,18 +151,27 @@ class GameBoard(object):
         pos: a Position
         Returns True if the tile at position pos was marked and False otherwise.
         """
+        if self.isPlayerXTurn():
+            val = 'X'   #X is always a human player.
+        else:
+            val = 'O'   #The computer always plays as O.
+            if self.getPlayerType() == COMPUTER_PLAYER:
+                pos = self.getRandomComputerPosition()
+                print 'Player O:\nThe computer played:',
+                print str(pos.getX()) + ',' + str(pos.getY())
+        
         if self.isPositionOnBoard(pos) and self.isTileEmpty(pos):
-            if self.isPlayerXTurn():
-                val = 'X'
-            else:
-                val = 'O'
             self.setPlayerTilePositions(pos,val)
-            self.playerXTurn = not self.playerXTurn
+
+            #Toggle the players
+            #self.playerXTurn = not self.playerXTurn
+            self.setPlayerXTurn(not self.isPlayerXTurn())
+
             self.setNumEmptyTiles()
-            print board
+            print self
             return True
         else:
-            print "Invalid Coordinate"
+            print "Invalid Coordinate\n"
             return False
 
     def getRandomPosition(self):
@@ -182,7 +186,9 @@ class GameBoard(object):
         Return a random position on the board.  This is used to simulate the
         computer player.  The final solution will include a MiniMax function
         to handle computer moves.
-
+        
+        Must assume there are empty tiles!!!
+        
         returns: a Position object if there is a move that can be made.
         """
 #        if self.getNumEmptyTiles() > 0:
@@ -226,31 +232,59 @@ class GameBoard(object):
         return self.winner() in ('X', 'O') or self.getNumEmptyTiles < 1
 
     def __str__(self):
-        global boadrStr
-        boadrStr = ''
+        global boardStr
+        boardStr = ''
         for y in range(self.height, 0, -1):
-##            print 'range height:', range(self.height, 0, -1)
-##            print y
             #print str(y) + '  ',
-            boadrStr += str(y) + '   '
+            boardStr += str(y) + '   '
             for x in range(1, self.width+1):
-##                print 'range width:', range(1, self.width+1)
-##                print x
                 #print str(self.getPlayerTilePositions(Position(x,y))),
-                boadrStr += str(self.getPlayerTilePositions(Position(x,y))) + ' '
+                boardStr += str(self.getPlayerTilePositions(Position(x,y))) + ' '
             #print
-            boadrStr += '\n'
-        #print "Y"
-        #print "/ X 1 2 3"
-        boadrStr += 'Y\n/ X 1 2 3'
-        print  boadrStr
-        return ''
+            boardStr += '\n'
+        #print "Y\n/ X 1 2 3"
+        boardStr += 'Y\n/ X 1 2 3\n'
+        return boardStr
 
-board = GameBoard()  
+##def playGame(playerType):
+##    board = GameBoard()
+##    board.setPlayerType(playerType)
+##    print board
+##    inputText = "Enter two numbers (x,y) for your Move Coordinate. e.g. 1,1: "
+##    while True:
+##        #Player X is always human and goes first.
+##        if board.isPlayerXTurn():
+##            print 'Player X:'
+##        else:
+##            # Player O may be human or computer and goes next
+##            if board.getPlayerType() == HUMAN_PLAYER:
+##                print 'Player O:'
+##        #Get the input from the human players.
+##        if board.getPlayerType() != COMPUTER_PLAYER or board.isPlayerXTurn():
+##            try:
+##                pos = raw_input(inputText)
+##                pos = Position(int(pos[0]),int(pos[2]))
+##                while not board.isPositionOnBoard(pos):
+##                    print "Invalid Coordinate\n"
+##                    pos = raw_input(inputText)
+##            except:
+##                continue
+##        #Implement the move.
+##        if board.markTileAtPosition(pos):
+##            #Game is over if a player won or there are no more empty tiles.
+##            if board.isGameOver() or board.getNumEmptyTiles() < 1: 
+##                break
+##        else:
+##            continue
+##
+##    if board.winner():
+##        print 'Player "%s" wins!' % board.winner()
+##    elif board.winner() == None:
+##        print "It's a Draw."
 
 class XmppHandler(xmpp_handlers.CommandHandler):
     """Handler class for all XMPP activity."""
-    
+
     def unhandled_command(self, message=None):
       message.reply(HELP_MSG.format(self.request.host_url))
 
@@ -261,38 +295,40 @@ class XmppHandler(xmpp_handlers.CommandHandler):
         message.reply(HELP_MSG2)
       else:
         message.reply("Game in Progress")
-        
  
     def move_command(self, message=None):
         if game_started:
             global game_started
-            pos = Position(int(message.arg[0]),int(message.arg[2]))
-            if not board.isPositionOnBoard(pos):
-                wrong_pos = "Invalid Coordinate"
-                message.reply(wrong_pos)
+
+            #Player X is always human and goes first.
+            if board.isPlayerXTurn():
+                 message.reply('Player X:')
             else:
-                if board.markTileAtPosition(pos):   #Human player
-                    print boadrStr
-                    message.reply(boadrStr)
-                    if board.isGameOver():
-                        game_started = False
-                        if board.winner():
-                            message.reply('Player "%s" wins.' % board.winner())
-                        elif board.winner() == None:
-                            message.reply(GAME_OVER)
-                #if board.getNumEmptyTiles() < 1:
-                if board.markTileAtPosition(board.getRandomComputerPosition()): #Computer player
-                    print boadrStr
-                    message.reply(boadrStr)
-                    if board.isGameOver():
-                        game_started = False
-                        if board.winner():
-                            message.reply('Player "%s" wins.' % board.winner())
-                        elif board.winner() == None:
-                            message.reply(GAME_OVER)
+                # Player O may be human or computer and goes next
+                if board.getPlayerType() == HUMAN_PLAYER:
+                    message.reply('Player O:')
+            
+            #Get the input from the human players.
+            if board.getPlayerType() != COMPUTER_PLAYER or board.isPlayerXTurn():
+                pos = Position(int(message.arg[0]),int(message.arg[2]))
+                if not board.isPositionOnBoard(pos):
+                    wrong_pos = "Invalid Coordinate"
+                    message.reply(wrong_pos)
+                else:
+                    #Implement the move.
+                    if board.markTileAtPosition(pos):
+                        #print boardStr              #is this line still needed?
+                        #message.reply(boardStr)     #is this line still needed?
+                        #Game is over if a player won or there are no more empty tiles.
+                        if board.isGameOver() or board.getNumEmptyTiles() < 1:
+                            game_started = False
+                            if board.winner():
+                                message.reply('Player "%s" wins.' % board.winner())
+                            elif board.winner() == None:
+                                message.reply(GAME_OVER)
         else:
             message.reply(HELP_MSG1)
-	
+
     def text_message(self, message=None):
         message.reply(HELP_MSG1)
 	
@@ -311,3 +347,21 @@ app = webapp2.WSGIApplication([
  
 if __name__ == "__main__":
  game_started = False
+
+
+##if __name__ == "__main__":
+##    while True:
+##        try:
+##            #ans = raw_input('\nPlay against [human = 1] or [computer = 2] or [quit = 0]: ')
+##            message.reply('\nPlay against [human = 1] or [computer = 2] or [quit = 0]: ')
+##            if str(HUMAN_PLAYER) in ans:
+##                playGame(HUMAN_PLAYER)
+##            elif ans == str(COMPUTER_PLAYER):
+##                playGame(COMPUTER_PLAYER)
+##            elif ans == str(QUIT):
+##                break
+##            else:
+##                continue
+##        except:
+##            break
+##    print 'Goodbye!'
