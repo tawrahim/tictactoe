@@ -1,0 +1,33 @@
+application: classroomtactoe  
+version: 1 
+runtime: python27
+api_version: 1
+threadsafe: true
+default_expiration: "1m"
+
+handlers:
+- url: /img
+  static_dir: static/img
+
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /css
+  static_dir: static/css
+
+- url: /js
+  static_dir: static/js
+
+- url: /.*
+  script: main.app
+
+inbound_services:
+- xmpp_message
+- xmpp_presence  
+  
+libraries:
+- name: jinja2
+  version: latest
+
+- name: markupsafe
+  version: latest
