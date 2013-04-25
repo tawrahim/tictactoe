@@ -1,8 +1,11 @@
 #Benz Theodore 4/20/2013    Basic Tic, Tac, Toe game
 
 import random
-
 from google.appengine.ext import db
+
+QUIT = 0
+HUMAN_PLAYER = 1
+COMPUTER_PLAYER = 2
 
 class Matrix(db.Model):
   col0 = db.StringProperty(required=True,
@@ -77,6 +80,7 @@ class GameBoard(object):
         self.numTiles = width * height
         self.numEmptyTiles = self.numTiles
         self.playerXTurn = True
+        self.playerType = HUMAN_PLAYER
         """
         self.playerTilePositions = [['-','-','-'],['-','-','-'],['-','-','-']]
         """
@@ -97,17 +101,8 @@ class GameBoard(object):
                    col1="-",
                    col2="-")
         row2.put();
-        
-##        for y in range(height, 0, -1):
-##            #print 'range height:', range(height, 0, -1)
-##            #print y
-##            for x in range(1, width+1):
-##                #print 'range width:', range(1, width+1)
-##                #print x
-###                self.setPlayerTilePositions(Position(x,y),'-')
-##                self.playerTilePositions[x][y] = '-'
-##        print self.playerTilePositions.values()
-                
+
+
     def getWidth(self):
         return self.width
     
@@ -132,14 +127,14 @@ class GameBoard(object):
     def isPlayerXTurn(self):
         return self.playerXTurn
 
-    def isPlayerOTurn(self):
-        return not self.playerXTurn
+    def setPlayerXTurn(self, toggle):
+        self.playerXTurn = toggle
 
-    def setPlayerXTurn(self):
-        self.playerXTurn = True
+    def getPlayerType(self):
+        return self.playerType
 
-    def setPlayerOTurn(self):
-        self.playerXTurn = False
+    def setPlayerType(self, playerType):
+        self.playerType = playerType
 
     def getPlayerTilePositions(self, pos):
         """
@@ -200,7 +195,7 @@ class GameBoard(object):
                 return True
         except:
             return False
-    
+
     def markTileAtPosition(self, pos):
         """
         Mark the tile under the position POS with value val ('X' or 'Y')
@@ -208,18 +203,27 @@ class GameBoard(object):
         pos: a Position
         Returns True if the tile at position pos was marked and False otherwise.
         """
+        if self.isPlayerXTurn():
+            val = 'X'   #X is always a human player.
+        else:
+            val = 'O'   #The computer always plays as O.
+            if self.getPlayerType() == COMPUTER_PLAYER:
+                pos = self.getRandomComputerPosition()
+                print 'Player O:\nThe computer played:',
+                print str(pos.getX()) + ',' + str(pos.getY())
+        
         if self.isPositionOnBoard(pos) and self.isTileEmpty(pos):
-            if self.isPlayerXTurn():
-                val = 'X'
-            else:
-                val = 'O'
             self.setPlayerTilePositions(pos,val)
-            self.playerXTurn = not self.playerXTurn
+
+            #Toggle the players
+            #self.playerXTurn = not self.playerXTurn
+            self.setPlayerXTurn(not self.isPlayerXTurn())
+
             self.setNumEmptyTiles()
-            print board
+            print self
             return True
         else:
-            print "Invalid Coordinate"
+            print "Invalid Coordinate\n"
             return False
 
     def getRandomPosition(self):
@@ -234,7 +238,9 @@ class GameBoard(object):
         Return a random position on the board.  This is used to simulate the
         computer player.  The final solution will include a MiniMax function
         to handle computer moves.
-
+        
+        Must assume there are empty tiles!!!
+        
         returns: a Position object if there is a move that can be made.
         """
 #        if self.getNumEmptyTiles() > 0:
@@ -284,90 +290,71 @@ class GameBoard(object):
         return self.winner() in ('X', 'O') or self.getNumEmptyTiles < 1
 
     def __str__(self):
-        boadrStr = ''
+        boardStr = ''
         for y in range(self.height, 0, -1):
-##            print 'range height:', range(self.height, 0, -1)
-##            print y
             #print str(y) + '  ',
-            boadrStr += str(y) + '   '
+            boardStr += str(y) + '   '
             for x in range(1, self.width+1):
-##                print 'range width:', range(1, self.width+1)
-##                print x
                 #print str(self.getPlayerTilePositions(Position(x,y))),
-                boadrStr += str(self.getPlayerTilePositions(Position(x,y))) + ' '
+                boardStr += str(self.getPlayerTilePositions(Position(x,y))) + ' '
             #print
-            boadrStr += '\n'
-        #print "Y"
-        #print "/ X 1 2 3"
-        boadrStr += 'Y\n/ X 1 2 3\n'
-        return boadrStr
+            boardStr += '\n'
+        #print "Y\n/ X 1 2 3"
+        boardStr += 'Y\n/ X 1 2 3\n'
+        return boardStr
 
-if __name__ == "__main__":
+
+def playGame(playerType):
     board = GameBoard()
+    board.setPlayerType(playerType)
     print board
+    inputText = "Enter two numbers (x,y) for your Move Coordinate. e.g. 1,1: "
     while True:
-        try:
-            pos = raw_input("Enter two numbers (x,y) for the Coordinates of your Move -e.g 1,1: ")
-            pos = Position(int(pos[0]),int(pos[2]))
-            while not board.isPositionOnBoard(pos):
-                print "Invalid Coordinate"
-                pos = raw_input("Enter two numbers (x,y) for the Coordinates of your Move -e.g 1,1: ")
-        except:
-            continue
-        if board.markTileAtPosition(pos):   #Human player
+        #Player X is always human and goes first.
+        if board.isPlayerXTurn():
+            print 'Player X:'
+        else:
+            # Player O may be human or computer and goes next
+            if board.getPlayerType() == HUMAN_PLAYER:
+                print 'Player O:'
+        #Get the input from the human players.
+        if board.getPlayerType() != COMPUTER_PLAYER or board.isPlayerXTurn():
+            try:
+                pos = raw_input(inputText)
+                pos = Position(int(pos[0]),int(pos[2]))
+                while not board.isPositionOnBoard(pos):
+                    print "Invalid Coordinate\n"
+                    pos = raw_input(inputText)
+            except:
+                continue
+        #Implement the move and check if a player won.
+        if board.markTileAtPosition(pos):
             if board.isGameOver(): 
                 break
         else:
             continue
+        #If there are no more empty squares, the game is over.
         if board.getNumEmptyTiles() < 1:
             break
-        if board.markTileAtPosition(board.getRandomComputerPosition()): #Computer player
-            if board.isGameOver(): 
-                break
-        else:
-            continue
-    print
-    print board
+
     if board.winner():
-        print 'Player "%s" wins.' % board.winner()
+        print 'Player "%s" wins!' % board.winner()
     elif board.winner() == None:
-        print 'Game over'
-#    print 'Game over'
+        print "It's a Draw."
 
-    # Some code for testing
 
-##pos = Position(2,2)
-##board = GameBoard()
-##
-##print 'board.getWidth():', board.getWidth()
-##
-##print 'board.getHeight():', board.getHeight()
-##
-##print 'board.getPlayerTilePositions(Position(1,1)):', board.getPlayerTilePositions(Position(1,1))
-##
-##print 'board.getNumTiles():', board.getNumTiles()
-##
-##print 'board.getNumEmptyTiles():', board.getNumEmptyTiles()
-##
-##print 'board.getPlayerTilePositions(pos):', board.getPlayerTilePositions(pos)
-##
-##print 'board.getNumEmptyTiles():', board.getNumEmptyTiles()
-##
-##print 'board.isTileEmpty(2,1):', board.isTileEmpty(Position(2,1))
-##
-##print 'board.isTileEmpty(2,2):', board.isTileEmpty(pos)
-##
-###print 'getRandomPosition():', board.getRandomPosition()
-##
-##print 'board.isPositionOnBoard(Position(2,3)):', board.isPositionOnBoard(Position(2,3))
-##print 'board.isPositionOnBoard(Position(5,4)):', board.isPositionOnBoard(Position(5,4))
-##
-##print "board.markTileAtPosition(Position(2,2)):", board.markTileAtPosition(Position(2,2))
-##print "board.markTileAtPosition(Position(2,2)):", board.markTileAtPosition(Position(2,2))
-##print "board.markTileAtPosition(Position(2,2)):", board.markTileAtPosition(Position(2,2))
-##print "board.markTileAtPosition(Position(1,1)):", board.markTileAtPosition(Position(1,1))
-##print "board.markTileAtPosition(Position(1,3)):", board.markTileAtPosition(Position(1,3))
-##print "board.markTileAtPosition(Position(3,1)):", board.markTileAtPosition(Position(3,1))
-##print board.isTileEmpty(Position(2,2))
-##print board
-###board.markTileAtPosition(board.getRandomComputerPosition())
+if __name__ == "__main__":
+    while True:
+        try:
+            ans = raw_input('\nPlay against [human = 1] or [computer = 2] or [quit = 0]: ')
+            if str(HUMAN_PLAYER) in ans:
+                playGame(HUMAN_PLAYER)
+            elif ans == str(COMPUTER_PLAYER):
+                playGame(COMPUTER_PLAYER)
+            elif ans == str(QUIT):
+                break
+            else:
+                continue
+        except:
+            break
+    print 'Goodbye!'
